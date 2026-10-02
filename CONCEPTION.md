@@ -22,8 +22,10 @@ Si aucun pattern n'est utilisé sur une partie du projet, expliquez pourquoi.
 
 ## 4. Solutions envisagées puis écartées
 
-À compléter.
+Aucune solution que nous avions envisagées ont été écartées.
 
 ## 5. Ce que nous améliorerions avec plus de temps
 
-À compléter.
+Ajout du système de remboursement et d'annulation de réservation.
+L'architecture globale du projet ( organisation des fichiers )
+Perfectionner la lisibilité, et la répartition de blocs de code dans différentes fonctions
