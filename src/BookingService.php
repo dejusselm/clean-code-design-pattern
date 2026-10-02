@@ -5,7 +5,12 @@ require_once "BookingCalculator.php";
 require_once "PostBookingService.php";
 final class BookingService
 {
-    public function confirm(Booking $booking, string $paymentMethod = 'stripe'): float
+    public function __construct(
+        private PayFastGatewayInterface $paymentGateway,
+        private EmailService $emailService
+    ) {}
+
+     public function confirm(Booking $booking): float
     {
         if (empty($booking->items)) {
             return 0.0;
@@ -14,18 +19,14 @@ final class BookingService
         $calculator = new BookingCalculator();
         $total = $calculator->calculate($booking);
 
-        if ($paymentMethod === 'stripe' && $total > 0) {
-            $stripe = new StripeClient();
-            $transactionId = $stripe->charge($total);
-            echo "PAYMENT {$transactionId}" . PHP_EOL;
-        } elseif ($paymentMethod === 'payfast') {
-            throw new RuntimeException('PayFast not implemented');
-        }
+        $transactionId = $this->paymentGateway->charge($total, (string) $booking->id);
+        echo "PAYMENT {$transactionId}" . PHP_EOL;
 
         $booking->status = 'confirmed';
 
-        $postBookingService = new PostBookingService();
-        $postBookingService->process($booking, $total);
+        echo "SQL INSERT booking={$booking->id} total={$total} status={$booking->status}" . PHP_EOL;
+
+        $this->emailService->sendConfirmation($booking->customer->email, $booking->id);
 
         return $total;
 
