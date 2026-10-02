@@ -6,6 +6,9 @@ final class EmailService
 {
     public function sendConfirmation(string $email, int $bookingId): void
     {
-        echo "EMAIL {$email}: booking {$bookingId} confirmed" . PHP_EOL;
+        if (filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            echo "EMAIL {$email}: booking {$bookingId} confirmed" . PHP_EOL;
+        }
+
     }
 }
