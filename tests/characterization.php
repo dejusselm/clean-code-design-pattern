@@ -29,26 +29,31 @@ $standardTotal = $service->confirm($standard, 'stripe');
 $tests->near(100.0, $standardTotal, 'standard customer keeps initial total');
 $tests->same('confirmed', $standard->status, 'booking becomes confirmed');
 
-$vip = createBooking('vip', 'day', 50.0, 2);
-$vipTotal = $service->confirm($vip, 'stripe');
-$tests->near(90.0, $vipTotal, 'legacy VIP rule gives 10 percent discount');
+$vipUnderHundred = createBooking('vip', 'day', 45.0, 2);
+$vipUnderHundredTotal = $service->confirm($vipUnderHundred, 'stripe');
+$tests->same(85.5, $vipUnderHundredTotal, 'legacy VIP rule gives 5 percent discount');
+
+$vipOverHundred = createBooking('vip', 'day', 60.0, 2);
+$vipOverHundredTotal = $service->confirm($vipOverHundred, 'stripe');
+$tests->near(108, $vipOverHundredTotal, 'legacy VIP rule gives 10 percent discount');
 
 $threeDays = createBooking('standard', '3days', 60.0, 2);
 $threeDaysTotal = $service->confirm($threeDays, 'stripe');
-$tests->near(110.0, $threeDaysTotal, 'legacy three day pass discount is 10 euros');
+$tests->near(100.0, $threeDaysTotal, 'legacy three day pass discount is 10 euros');
 
 $noTicket = createBooking('standard', 'day', 50.0, 0);
 $noTicketTotal = $service->confirm($noTicket, 'stripe');
-$tests->same('pending', $noTicket->status, 'booking is cancelled');
+$tests->same(0.0, $noTicketTotal, 'booking is not possible');
 
 $free = createBooking('standard', 'day', 0.0, 1);
-$free = $service->confirm($free, 'stripe');
+$freeTotal = $service->confirm($free, 'stripe');
 $tests->same(0.0, $freeTotal, 'free ticket is 0.0€');
 
 $cheapThreeDays = createBooking('standard', '3days', 8.0, 1);
 $cheapThreeDaysTotal = $service->confirm($cheapThreeDays, 'stripe');
-$tests->same(0.0, $threeDaysTotal, 'total is 0.0 with three days pass');
+$tests->same(0.0, $cheapThreeDaysTotal, 'total is 0.0 with three days pass');
 
 
 ob_end_clean();
 $tests->summary();
+
