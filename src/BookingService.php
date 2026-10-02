@@ -4,7 +4,12 @@ declare(strict_types=1);
 
 final class BookingService
 {
-    public function confirm(Booking $booking, string $paymentMethod = 'stripe'): float
+    public function __construct(
+        private PayFastGatewayInterface $paymentGateway,
+        private EmailService $emailService
+    ) {}
+
+     public function confirm(Booking $booking): float
     {
         if (count($booking->items) === 0) {
             throw new RuntimeException('Empty booking');
@@ -13,7 +18,7 @@ final class BookingService
         if (!filter_var($booking->customer->email, FILTER_VALIDATE_EMAIL)) {
             throw new RuntimeException('Invalid email');
         }
-
+        
         $total = 0.0;
 
         foreach ($booking->items as $item) {
@@ -34,22 +39,16 @@ final class BookingService
             $total -= 10.0;
         }
 
-        if ($paymentMethod === 'stripe') {
-            $stripe = new StripeClient();
-            $transactionId = $stripe->charge($total);
-            echo "PAYMENT {$transactionId}" . PHP_EOL;
-        } elseif ($paymentMethod === 'payfast') {
-            throw new RuntimeException('PayFast not implemented');
-        } else {
-            throw new RuntimeException('Unknown payment method');
-        }
+        // 3. Appel de l'adaptateur (Stripe ou PayFast selon ce qui a été injecté)
+        $transactionId = $this->paymentGateway->charge($total, (string) $booking->id);
+        echo "PAYMENT {$transactionId}" . PHP_EOL;
 
         $booking->status = 'confirmed';
 
         echo "SQL INSERT booking={$booking->id} total={$total} status={$booking->status}" . PHP_EOL;
 
-        $emailService = new EmailService();
-        $emailService->sendConfirmation($booking->customer->email, $booking->id);
+        // 4. Utilisation du service d'email injecté
+        $this->emailService->sendConfirmation($booking->customer->email, $booking->id);
 
         return $total;
     }
