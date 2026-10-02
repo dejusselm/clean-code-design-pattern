@@ -6,6 +6,42 @@ declare(strict_types=1);
  * SDK externe fourni par PayFast.
  * CONSIGNE : ne pas modifier cette classe.
  */
+interface PayFastGatewayInterface
+{
+    public function charge(float $amount, string $reference): string;
+}
+class PayFastAdapter implements PayFastGatewayInterface
+{
+    public function charge(float $amount, string $reference): string
+    {
+        $amount_cents = (int) round($amount * 100);
+
+        $payload = [
+            'reference' => $reference,
+            'amount_cents' => $amount_cents,
+            'currency' => 'EUR',
+        ];
+        $result = $this->payFastSdk->executePayment($payload);
+        return $result['transaction_id'];
+    }
+    public function __construct(
+        private PayFastSdk $payFastSdk
+    ) {
+    }
+}
+class StripeAdapter implements PayFastGatewayInterface
+{
+    public function charge(float $amount, string $reference): string
+    {
+        $transactionId = $this->stripeClient->charge($amount);
+        return $transactionId;
+    }
+    public function __construct(
+        private StripeClient $stripeClient
+    ) {
+    }
+
+}
 final class PayFastSdk
 {
     /**
