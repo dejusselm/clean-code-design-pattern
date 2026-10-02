@@ -1,16 +1,11 @@
 <?php
 
 declare(strict_types=1);
-
-/**
- * SDK externe fourni par PayFast.
- * CONSIGNE : ne pas modifier cette classe.
- */
-interface PayFastGatewayInterface
+interface PaymentGateway
 {
     public function charge(float $amount, string $reference): string;
 }
-class PayFastAdapter implements PayFastGatewayInterface
+class PayFastAdapter implements PaymentGateway
 {
     public function charge(float $amount, string $reference): string
     {
@@ -29,7 +24,7 @@ class PayFastAdapter implements PayFastGatewayInterface
     ) {
     }
 }
-class StripeAdapter implements PayFastGatewayInterface
+class StripeAdapter implements PaymentGateway
 {
     public function charge(float $amount, string $reference): string
     {
@@ -42,6 +37,11 @@ class StripeAdapter implements PayFastGatewayInterface
     }
 
 }
+
+/**
+ * SDK externe fourni par PayFast.
+ * CONSIGNE : ne pas modifier cette classe.
+ */
 final class PayFastSdk
 {
     /**
