@@ -15,6 +15,9 @@ class PostBookingService
 
             echo "SQL INSERT booking={$booking->id} total={$total} status={$booking->status}" . PHP_EOL;
 
+            $analyticsClient = new AnalyticsClient();
+            $analyticsClient->track('booking', [$booking, $total]);
+
             if ($phoneNumber) {
                 $smsService = new SmsClient();
                 $smsService->send($phoneNumber, "Your booking (booking n°{$booking->id}, price : {$total}) was confirmed.");

@@ -50,7 +50,7 @@ $freeTotal = $service->confirm($free, 'stripe');
 $tests->same(0.0, $freeTotal, 'free ticket is 0.0€');
 
 $cheapThreeDays = createBooking('standard', '3days', 8.0, 1);
-$cheapThreeDaysTotal = $service->confirm($cheapThreeDays, 'stripe');
+$cheapThreeDaysTotal = $service->confirm($cheapThreeDays, 'payfast');
 $tests->same(0.0, $cheapThreeDaysTotal, 'total is 0.0 with three days pass');
 
 
