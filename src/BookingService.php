@@ -15,16 +15,11 @@ final class BookingService
         $calculator = new BookingCalculator();
         $total = $calculator->calculate($booking);
 
+        $booking->status = 'confirmed';
+
         $paymentSupervisor = new PaymentSupervisor();
         $paymentSupervisor->supervise($booking, $paymentMethod, $total);
 
-        $booking->status = 'confirmed';
-
         return $total;
-
-        if (!filter_var($booking->customer->email, FILTER_VALIDATE_EMAIL)) {
-            throw new RuntimeException('Invalid email');
-        }
-
     }
 }
