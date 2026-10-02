@@ -2,9 +2,13 @@
 
 ## 1. Choix principaux
 
-Extraction de la logique de calcul dans BookingCalculator.php afin de ne pas surcharger le dossier BookingService.php, on a été imposer suite au règle du Ticket #102 d'isoler dans un calculator dédié.
+Extraction de la logique de calcul dans BookingCalculator.php afin de ne pas surcharger le dossier BookingService.php, notamment suite aux règles du Ticket #102. 
 De plus BookingService.php orcheste uniquement le processus de réservation, en déléguant les calculs de prix à BookingCalculator.php.
+
 Les actions secondaires dans PostBookingService.php comme notifications SMS/Email, calcul des points de fidélité et persistence SQL ont été sorties du flux principal pour fluidifier la validation de la réservation.
+
+ Cela respecte notamment le principe SRP : single reponsibility principle, soit une responsabilité par classe.
+
 
 ## 2. Principes SOLID mobilisés
 
