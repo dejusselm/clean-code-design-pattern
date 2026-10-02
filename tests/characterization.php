@@ -37,5 +37,18 @@ $threeDays = createBooking('standard', '3days', 60.0, 2);
 $threeDaysTotal = $service->confirm($threeDays, 'stripe');
 $tests->near(110.0, $threeDaysTotal, 'legacy three day pass discount is 10 euros');
 
+$noTicket = createBooking('standard', 'day', 50.0, 0);
+$noTicketTotal = $service->confirm($noTicket, 'stripe');
+$tests->same('pending', $noTicket->status, 'booking is cancelled');
+
+$free = createBooking('standard', 'day', 0.0, 1);
+$free = $service->confirm($free, 'stripe');
+$tests->same(0.0, $freeTotal, 'free ticket is 0.0€');
+
+$cheapThreeDays = createBooking('standard', '3days', 8.0, 1);
+$cheapThreeDaysTotal = $service->confirm($cheapThreeDays, 'stripe');
+$tests->same(0.0, $threeDaysTotal, 'total is 0.0 with three days pass');
+
+
 ob_end_clean();
 $tests->summary();
