@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 require_once "BookingCalculator.php";
 require_once "PostBookingService.php";
+require_once "PaymentSupervisor.php";
 final class BookingService
 {
     public function confirm(Booking $booking, string $paymentMethod = 'stripe'): float
@@ -14,13 +15,8 @@ final class BookingService
         $calculator = new BookingCalculator();
         $total = $calculator->calculate($booking);
 
-        if ($paymentMethod === 'stripe' && $total > 0) {
-            $stripe = new StripeClient();
-            $transactionId = $stripe->charge($total);
-            echo "PAYMENT {$transactionId}" . PHP_EOL;
-        } elseif ($paymentMethod === 'payfast') {
-            throw new RuntimeException('PayFast not implemented');
-        }
+        $paymentSupervisor = new PaymentSupervisor();
+        $paymentSupervisor->supervise($paymentMethod, $total);
 
         $booking->status = 'confirmed';
 
